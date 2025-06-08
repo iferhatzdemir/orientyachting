@@ -1,0 +1,140 @@
+<?php
+/**
+ * Turkish language file
+ * Contains static translations for the Orient Yacht project
+ */
+
+return [
+    'nav.home' => 'Ana Sayfa',
+    'nav.yachts' => 'Yatlar',
+    'nav.services' => 'Hizmetler',
+    'nav.destinations' => 'Destinasyonlar',
+    'nav.gallery' => 'Galeri',
+    'nav.blog' => 'Blog',
+    'nav.contact' => 'İletişim',
+    
+    'global.readMore' => 'Daha Fazla',
+    'global.viewDetails' => 'Detayları Görüntüle',
+    'global.viewAll' => 'Tümünü Göster',
+    'global.book' => 'Rezervasyon Yap',
+    'global.price' => 'Fiyat',
+    'global.day' => 'Gün',
+    'global.week' => 'Hafta',
+    'global.length' => 'Uzunluk',
+    'global.capacity' => 'Kapasite',
+    'global.cabins' => 'Kabin',
+    'global.error' => 'Hata',
+    'global.success' => 'Başarılı',
+    
+    'footer.copyright' => 'Tüm hakları saklıdır',
+    'footer.address' => 'Adres',
+    'footer.phone' => 'Telefon',
+    'footer.email' => 'E-posta',
+    
+    'form.name' => 'Ad Soyad',
+    'form.email' => 'E-posta',
+    'form.phone' => 'Telefon',
+    'form.message' => 'Mesaj',
+    'form.submit' => 'Gönder',
+    'form.startDate' => 'Başlangıç Tarihi',
+    'form.endDate' => 'Bitiş Tarihi',
+    'form.guests' => 'Misafir Sayısı',
+    
+    'yacht.featured.description' => 'Lüks yat koleksiyonumuzu keşfedin',
+    'yacht.none_available' => 'Şu anda mevcut yat bulunmamaktadır',
+    
+    'reservation.success' => 'Rezervasyon talebiniz başarıyla gönderildi',
+    'reservation.error' => 'Rezervasyon işlemi sırasında bir hata oluştu',
+
+    // Admin panel - General
+    'admin.save' => 'Kaydet',
+    'admin.update' => 'Güncelle',
+    'admin.add' => 'Ekle',
+    'admin.list' => 'Liste',
+    'admin.edit' => 'Düzenle',
+    'admin.delete' => 'Sil',
+    'admin.active' => 'Aktif',
+    'admin.inactive' => 'Pasif',
+    'admin.select' => 'Seçiniz',
+    'admin.status' => 'Durum',
+    'admin.actions' => 'İşlemler',
+    'admin.order' => 'Sıra No',
+    'admin.required_fields' => '* işaretli alanlar zorunludur',
+    'admin.confirm_delete' => 'Bu öğeyi silmek istediğinize emin misiniz?',
+    'admin.confirm_status' => 'Durum Değişikliği',
+    'admin.confirm_status_msg' => 'Durum değişikliği yapmak istediğinize emin misiniz?',
+    'admin.yes_delete' => 'Evet, sil!',
+    'admin.yes' => 'Evet',
+    'admin.cancel' => 'İptal',
+    'admin.success' => 'Başarılı!',
+    'admin.error' => 'Hata!',
+    'admin.warning' => 'Uyarı!',
+    'admin.info' => 'Bilgi',
+
+    // Admin panel - Yacht Management
+    'admin.yacht_management' => 'Yat Yönetimi',
+    'admin.yacht_list' => 'Yat Listesi',
+    'admin.add_yacht' => 'Yeni Yat Ekle',
+    'admin.yacht_types' => 'Yat Tipleri',
+    'admin.yacht_features' => 'Yat Özellikleri',
+    'admin.yacht_locations' => 'Yat Lokasyonları',
+    'admin.yacht_info' => 'Yat Bilgileri',
+    'admin.no_yacht_types' => 'Henüz yat tipi eklenmedi.',
+    'admin.status_update_success' => 'Durum başarıyla güncellendi.',
+    'admin.status_update_error' => 'Durum güncellenirken bir sorun oluştu.',
+    'admin.type_delete_success' => 'Yat tipi başarıyla silindi.',
+    'admin.type_delete_error' => 'Yat tipi silinirken bir sorun oluştu.',
+    'admin.connection_error' => 'Sunucu ile bağlantı kurulurken bir sorun oluştu.',
+    'admin.delete_type_confirm' => 'Yat tipini silmek istediğinize emin misiniz:',
+
+    // Admin panel - Yacht Fields
+    'admin.yacht_name' => 'Yat Adı',
+    'admin.yacht_type' => 'Yat Tipi',
+    'admin.yacht_length' => 'Uzunluk (metre)',
+    'admin.yacht_capacity' => 'Kapasite (kişi)',
+    'admin.yacht_crew' => 'Mürettebat Sayısı',
+    'admin.yacht_cabins' => 'Kabin Sayısı',
+    'admin.yacht_guest_capacity' => 'Konaklama Kapasitesi',
+    'admin.yacht_build_year' => 'Yapım Yılı',
+    'admin.yacht_price_day' => 'Günlük Fiyat',
+    'admin.yacht_price_week' => 'Haftalık Fiyat',
+    'admin.yacht_location' => 'Lokasyon',
+    'admin.yacht_availability' => 'Müsaitlik Durumu',
+    'admin.yacht_available' => 'Kiralanabilir',
+    'admin.yacht_unavailable' => 'Kiralanmaz (Pasif)',
+    'admin.yacht_description' => 'Açıklama',
+    'admin.yacht_main_image' => 'Ana Resim',
+    'admin.yacht_seo_title' => 'SEO Başlık',
+    'admin.yacht_seo_desc' => 'SEO Açıklama',
+
+    // Admin panel - Yacht Type Management
+    'admin.type_management' => 'Yat Tipleri Yönetimi',
+    'admin.type_list' => 'Yat Tipleri Listesi',
+    'admin.add_type' => 'Yeni Yat Tipi Ekle',
+    'admin.edit_type' => 'Yat Tipi Düzenle',
+    'admin.type_name' => 'Tip Adı',
+    'admin.type_description' => 'Açıklama',
+    'admin.type_details' => 'Yat Tipi Bilgileri',
+    'admin.type_name_help' => 'Yat tipinin ana adını giriniz. Bu alan zorunludur.',
+    'admin.order_help' => 'Listede görünme sırasını belirler. Küçük değerler üstte gösterilir.',
+    'admin.status_help' => 'Aktif olması için işaretleyin.',
+    'admin.type_name_required' => 'Lütfen yat tipi adını giriniz',
+    'admin.type_name_min_length' => 'Yat tipi adı en az 2 karakter olmalıdır',
+
+    // Admin panel - Yacht Feature Management
+    'admin.feature_management' => 'Yat Özellikleri Yönetimi',
+    'admin.feature_list' => 'Yat Özellikleri Listesi',
+    'admin.add_feature' => 'Yeni Özellik Ekle',
+    'admin.edit_feature' => 'Özellik Düzenle',
+    'admin.feature_name' => 'Özellik Adı',
+
+    // Admin panel - Languages
+    'admin.general_info' => 'Genel Bilgiler',
+    'admin.turkish' => 'Türkçe',
+    'admin.english' => 'İngilizce',
+    'admin.german' => 'Almanca',
+    'admin.russian' => 'Rusça',
+
+    // Admin panel - Feature Management
+    'admin.yacht_no_features' => 'Henüz özellik eklenmedi.',
+]; 

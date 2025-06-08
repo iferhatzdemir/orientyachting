@@ -1,0 +1,115 @@
+Options -indexes
+RewriteEngine On
+RewriteBase /orientyachting/admin/
+RewriteRule ^liste/(.*)$ index.php?sayfa=liste&tablo=$1 [NC]
+RewriteRule ^modul-ekle$ index.php?sayfa=modul-ekle [NC]
+RewriteRule ^ekle/(.*)$ index.php?sayfa=ekle&tablo=$1 [NC]
+RewriteRule ^duzenle/(.*)/(.*)$ index.php?sayfa=duzenle&tablo=$1&ID=$2 [NC]
+RewriteRule ^sil/(.*)/(.*)$ index.php?sayfa=sil&tablo=$1&ID=$2 [NC]
+RewriteRule ^seo-ayarlari$ index.php?sayfa=seo-ayarlari [NC]
+RewriteRule ^iletisim-ayarlari$ index.php?sayfa=iletisim-ayarlari [NC]
+RewriteRule ^giris-yap$ login.php [NC]
+RewriteRule ^cikis$ index.php?sayfa=cikis [NC]
+
+RewriteRule ^banner-ekle$ index.php?sayfa=banner-ekle [NC]
+RewriteRule ^banner-duzenle/(.*)$ index.php?sayfa=banner-duzenle&ID=$1 [NC]
+RewriteRule ^banner-liste$ index.php?sayfa=banner-liste [NC]
+RewriteRule ^banner-sil/(.*)$ index.php?sayfa=banner-sil&ID=$1 [NC]
+
+RewriteRule ^kategori-liste$ index.php?sayfa=kategori-liste [NC]
+RewriteRule ^kategori-ekle$ index.php?sayfa=kategori-ekle [NC]
+RewriteRule ^kategori-duzenle/(.*)$ index.php?sayfa=kategori-duzenle&ID=$1 [NC]
+RewriteRule ^kategori-sil/(.*)$ index.php?sayfa=kategori-sil&ID=$1 [NC]
+
+RewriteRule ^mehmet-ulus$ index.php?sayfa=mehmet-ulus [NC]
+
+RewriteRule ^mesajlar$ index.php?sayfa=mesajlar [NC]
+RewriteRule ^mesaj-detay/(.*)$ index.php?sayfa=mesaj-detay&ID=$1 [NC]
+
+RewriteRule ^urun-ekle$ index.php?sayfa=urun-ekle [NC]
+RewriteRule ^urun-liste$ index.php?sayfa=urun-liste [NC]
+RewriteRule ^urun-sil/(.*)$ index.php?sayfa=urun-sil&ID=$1 [NC]
+RewriteRule ^urun-duzenle/(.*)$ index.php?sayfa=urun-duzenle&ID=$1 [NC]
+RewriteRule ^resimler/(.*)/(.*)$ index.php?sayfa=resimler&tablo=$1&ID=$2 [NC]
+RewriteRule ^resim-sil/(.*)/(.*)/(.*)$ index.php?sayfa=resim-sil&tablo=$1&ID=$2&silinecekID=$3 [NC]
+RewriteRule ^urun-stok/(.*)$ index.php?sayfa=urun-stok&ID=$1 [NC]
+
+RewriteRule ^siparis-liste$ index.php?sayfa=siparis-liste [NC]
+RewriteRule ^siparis-detay/(.*)$ index.php?sayfa=siparis-detay&sipariskodu=$1 [NC]
+
+RewriteRule ^iade-liste$ index.php?sayfa=iade-liste [NC]
+RewriteRule ^iade-detay/(.*)$ index.php?sayfa=iade-detay&iadekodu=$1 [NC]
+
+RewriteRule ^yorumlar$ index.php?sayfa=yorumlar [NC]
+RewriteRule ^yorum-detay/(.*)$ index.php?sayfa=yorum-detay&ID=$1 [NC]
+
+RewriteRule ^hesap-numarasi-ekle$ index.php?sayfa=hesap-numarasi-ekle [NC]
+RewriteRule ^hesap-numarasi-duzenle/(.*)$ index.php?sayfa=hesap-numarasi-duzenle&ID=$1 [NC]
+RewriteRule ^hesap-numarasi-liste$ index.php?sayfa=hesap-numarasi-liste [NC]
+RewriteRule ^hesap-numarasi-sil/(.*)$ index.php?sayfa=hesap-numarasi-sil&ID=$1 [NC]
+
+# Yacht Module Rewrite Rules
+RewriteRule ^yachts$ index.php?sayfa=yachts [NC]
+RewriteRule ^yacht-ekle$ index.php?sayfa=yacht-ekle [NC]
+RewriteRule ^yacht-duzenle/(.*)$ index.php?sayfa=yacht-duzenle&ID=$1 [NC]
+RewriteRule ^yacht-sil/(.*)$ index.php?sayfa=yacht-sil&ID=$1 [NC]
+RewriteRule ^yacht-galeri/(.*)$ index.php?sayfa=yacht-galeri&ID=$1 [NC]
+RewriteRule ^yacht-types$ index.php?sayfa=yacht-types [NC]
+RewriteRule ^yacht-type-ekle$ index.php?sayfa=yacht-type-ekle [NC]
+RewriteRule ^yacht-type-duzenle/(.*)$ index.php?sayfa=yacht-type-duzenle&ID=$1 [NC]
+RewriteRule ^yacht-types/duzenle/(.*)$ index.php?sayfa=yacht-type-duzenle&ID=$1 [NC]
+RewriteRule ^yacht-types/sil/(.*)$ index.php?sayfa=yacht-type-sil&ID=$1 [NC]
+RewriteRule ^yacht-locations$ index.php?sayfa=yacht-locations [NC]
+RewriteRule ^yacht-location-ekle$ index.php?sayfa=yacht-location-ekle [NC]
+RewriteRule ^yacht-location-duzenle/(.*)$ index.php?sayfa=yacht-location-duzenle&ID=$1 [NC]
+RewriteRule ^yacht-locations/duzenle/(.*)$ index.php?sayfa=yacht-location-duzenle&ID=$1 [NC]
+RewriteRule ^yacht-locations/sil/(.*)$ index.php?sayfa=yacht-location-sil&ID=$1 [NC]
+RewriteRule ^yacht-features$ index.php?sayfa=yacht-features [NC]
+RewriteRule ^yacht-feature-ekle$ index.php?sayfa=yacht-feature-ekle [NC]
+RewriteRule ^yacht-feature-duzenle/(.*)$ index.php?sayfa=yacht-feature-duzenle&id=$1 [NC]
+RewriteRule ^yacht-features/duzenle/(.*)$ index.php?sayfa=yacht-feature-duzenle&id=$1 [NC]
+RewriteRule ^yacht-features/sil/(.*)$ index.php?sayfa=yacht-feature-sil&id=$1 [NC]
+
+RewriteRule ^moduller$ index.php?sayfa=moduller [NC]
+RewriteRule ^modul-ekle$ index.php?sayfa=modul-ekle [NC]
+RewriteRule ^modul-duzenle/(.*)$ index.php?sayfa=modul-duzenle&ID=$1 [NC]
+
+# Gallery Module Rewrite Rules
+RewriteRule ^gallery$ index.php?sayfa=gallery [NC]
+RewriteRule ^gallery/sil/(.*)$ index.php?sayfa=gallery&islem=sil&ID=$1 [NC]
+RewriteRule ^galeri-duzenle/(.*)$ index.php?sayfa=galeri-duzenle&ID=$1 [NC]
+# Gallery Category Management
+RewriteRule ^gallery-categories$ index.php?sayfa=gallery-categories [NC]
+RewriteRule ^gallery-category-ekle$ index.php?sayfa=gallery-category-ekle [NC]
+RewriteRule ^gallery-category-duzenle/(.*)$ index.php?sayfa=gallery-category-duzenle&ID=$1 [NC]
+RewriteRule ^gallery-category-sil/(.*)$ index.php?sayfa=gallery-category-sil&ID=$1 [NC]
+
+# Database Check Page
+RewriteRule ^db-check$ index.php?sayfa=db-check [NC]
+
+# Upload Test Page
+RewriteRule ^test-upload$ index.php?sayfa=test-upload [NC]
+
+# Database Debug Page
+RewriteRule ^db-debug$ index.php?sayfa=db-debug [NC]
+
+RewriteRule ^rezervasyonlar$ index.php?sayfa=rezervasyonlar [NC]
+RewriteRule ^rezervasyonlar/durum/(.*)$ index.php?sayfa=rezervasyonlar&islem=durum&ID=$1 [NC]
+RewriteRule ^rezervasyonlar/sil/(.*)$ index.php?sayfa=rezervasyonlar&islem=sil&ID=$1 [NC]
+RewriteRule ^rezervasyon-detay/(.*)$ index.php?sayfa=rezervasyon-detay&ID=$1 [NC]
+
+# Galeri Yönetimi
+RewriteRule ^galeri-liste$ index.php?sayfa=galeri-liste [L,QSA]
+RewriteRule ^galeri-liste/([0-9]+)$ index.php?sayfa=galeri-liste&ID=$1 [L,QSA]
+RewriteRule ^galeri-ekle$ index.php?sayfa=galeri-ekle [L,QSA]
+RewriteRule ^galeri-duzenle/([0-9]+)$ index.php?sayfa=galeri-ekle&ID=$1 [L,QSA]
+RewriteRule ^galeri-toplu-yukle$ index.php?sayfa=galeri-toplu-yukle [L,QSA]
+RewriteRule ^galeri-toplu-yukle/([a-zA-Z0-9-]+)$ index.php?sayfa=galeri-toplu-yukle&islem=$1 [L,QSA]
+
+RewriteRule ^galeri$ index.php?sayfa=galeri [NC]
+RewriteRule ^galeri-resimler/(.*)$ index.php?sayfa=galeri-resimler&ID=$1 [NC]
+RewriteRule ^galeri-duzenle/(.*)$ index.php?sayfa=galeri-duzenle&ID=$1 [NC]
+RewriteRule ^galeri-sil/(.*)$ index.php?sayfa=galeri-sil&ID=$1 [NC]
+RewriteRule ^galeri-kategori-duzenle/(.*)$ index.php?sayfa=galeri-kategori-duzenle&ID=$1 [NC]
+RewriteRule ^galeri-kategori-sil/(.*)$ index.php?sayfa=galeri-kategori-sil&ID=$1 [NC]
+RewriteRule ^galeri-resim-sil/(.*)/(.*)$ index.php?sayfa=galeri-resim-sil&ID=$1&resimID=$2 [NC]

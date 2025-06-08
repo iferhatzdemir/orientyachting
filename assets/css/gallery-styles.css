@@ -1,0 +1,551 @@
+/**
+ * Gallery Styles for Orient Yachting
+ * Optimized for gallery section, lightbox, hover effects, and video playback
+ */
+
+/* Gallery Section Styling */
+.section-gallery {
+    position: relative;
+    padding: 60px 0;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.section-gallery:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Luxury Section Heading */
+.luxury-section-heading {
+    position: relative;
+    margin-bottom: 40px;
+    padding-bottom: 15px;
+}
+
+.luxury-subheading {
+    font-family: 'Playfair Display', serif;
+    color: #C6A87B;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    display: block;
+    font-weight: 400;
+}
+
+.luxury-heading-decoration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+.luxury-heading-decoration .line {
+    height: 1px;
+    width: 60px;
+    background: linear-gradient(to right, rgba(198, 168, 123, 0), rgba(198, 168, 123, 1));
+}
+
+.luxury-heading-decoration .line:last-child {
+    background: linear-gradient(to left, rgba(198, 168, 123, 0), rgba(198, 168, 123, 1));
+}
+
+.luxury-heading-decoration .diamond {
+    width: 8px;
+    height: 8px;
+    background-color: #C6A87B;
+    transform: rotate(45deg);
+    margin: 0 15px;
+}
+
+.luxury-description {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Gallery Grid Layout */
+.gallery-with-spacing {
+    padding: 0 15px;
+}
+
+.gallery-row {
+    margin-bottom: 24px;
+}
+
+.gallery-item-col {
+    padding: 12px;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.gallery-item-col:hover {
+    transform: translateY(-5px);
+}
+
+/* Gallery Items Styling */
+.ui-gallery__img {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: all 0.4s ease;
+    cursor: pointer;
+}
+
+.ui-gallery__img:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.img-scale {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+.ui-gallery__img:hover .img-scale {
+    transform: scale(1.08);
+}
+
+/* Gallery Item Overlay */
+.gallery-item-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(18, 38, 63, 0.2);
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease;
+    z-index: 2;
+}
+
+.ui-gallery__img:hover .gallery-item-overlay {
+    opacity: 1;
+}
+
+/* SVG Frame Animation */
+.gallery-frame {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    pointer-events: none;
+}
+
+.frame-line {
+    stroke: #C6A87B;
+    stroke-width: 1.5;
+    fill: none;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    transition: stroke-dashoffset 0.6s ease;
+}
+
+.ui-gallery__img:hover .frame-line {
+    stroke-dashoffset: 0;
+}
+
+.ui-gallery__img:hover .frame-line.right {
+    transition-delay: 0.15s;
+}
+
+.ui-gallery__img:hover .frame-line.bottom {
+    transition-delay: 0.3s;
+}
+
+.ui-gallery__img:hover .frame-line.left {
+    transition-delay: 0.45s;
+}
+
+/* Zoom Icon */
+.gallery-zoom {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(198, 168, 123, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 3;
+}
+
+.gallery-zoom i {
+    color: #fff;
+    font-size: 18px;
+}
+
+.ui-gallery__img:hover .gallery-zoom {
+    transform: scale(1);
+    transition-delay: 0.3s;
+}
+
+/* Video Thumbnail Styles */
+.video-thumbnail-container {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.video-thumbnail {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #12263f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 9;
+}
+
+.video-poster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(18, 38, 63, 0.7), rgba(18, 38, 63, 0.3));
+    transition: all 0.4s ease;
+}
+
+.default-video-bg {
+    background: linear-gradient(135deg, rgba(18, 38, 63, 0.8), rgba(18, 38, 63, 0.4));
+    border-radius: 2px;
+}
+
+.video-poster i {
+    font-size: 30px;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s ease;
+}
+
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background-color: rgba(198, 168, 123, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.play-button:before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border: 1px solid rgba(198, 168, 123, 0.5);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.play-button i {
+    color: #fff;
+    font-size: 22px;
+    margin-left: 3px; /* Offset for play icon */
+}
+
+.video-thumbnail-container:hover .play-button {
+    transform: translate(-50%, -50%) scale(1.1);
+    background-color: rgba(198, 168, 123, 1);
+}
+
+.video-thumbnail-container:hover .video-poster {
+    background: linear-gradient(135deg, rgba(18, 38, 63, 0.4), rgba(18, 38, 63, 0.1));
+}
+
+/* Video Modal */
+.video-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    justify-content: center;
+    align-items: center;
+}
+
+.video-modal-container {
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.video-player {
+    width: 100%;
+    max-height: 85vh;
+    outline: none;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    background-color: #000;
+}
+
+.video-modal-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    font-size: 30px;
+    color: #fff;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(198, 168, 123, 0.6);
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.video-modal-close:hover {
+    background: rgba(198, 168, 123, 0.9);
+    transform: rotate(90deg);
+}
+
+/* Manual Lightbox Styles */
+.manual-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox-container {
+    position: relative;
+    max-width: 90%;
+    max-height: 90vh;
+}
+
+.lightbox-image {
+    max-width: 100%;
+    max-height: 85vh;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+}
+
+.lightbox-image.loading {
+    opacity: 0.5;
+}
+
+.lightbox-caption {
+    position: absolute;
+    bottom: -40px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #fff;
+    font-size: 16px;
+    padding: 10px;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    font-size: 30px;
+    color: #fff;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(198, 168, 123, 0.6);
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.lightbox-close:hover {
+    background: rgba(198, 168, 123, 0.9);
+    transform: rotate(90deg);
+}
+
+.lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: rgba(198, 168, 123, 0.6);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.lightbox-prev {
+    left: -70px;
+}
+
+.lightbox-next {
+    right: -70px;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    background: rgba(198, 168, 123, 0.9);
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .gallery-item-col {
+        padding: 8px;
+    }
+    
+    .gallery-row {
+        margin-bottom: 16px;
+    }
+    
+    .play-button {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .play-button i {
+        font-size: 18px;
+    }
+    
+    .lightbox-prev {
+        left: -60px;
+    }
+    
+    .lightbox-next {
+        right: -60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-gallery {
+        padding: 40px 0;
+    }
+    
+    .luxury-subheading {
+        font-size: 14px;
+        letter-spacing: 2px;
+    }
+    
+    .luxury-heading-decoration .line {
+        width: 40px;
+    }
+    
+    .gallery-item-col {
+        padding: 6px;
+    }
+    
+    .gallery-zoom {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .gallery-zoom i {
+        font-size: 16px;
+    }
+    
+    .lightbox-prev {
+        left: -50px;
+    }
+    
+    .lightbox-next {
+        right: -50px;
+    }
+}
+
+@media (max-width: 576px) {
+    .gallery-row {
+        margin-bottom: 12px;
+    }
+    
+    .gallery-item-col {
+        padding: 4px;
+    }
+    
+    .play-button {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .play-button i {
+        font-size: 16px;
+    }
+    
+    .lightbox-prev,
+    .lightbox-next {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .lightbox-prev {
+        left: 10px;
+    }
+    
+    .lightbox-next {
+        right: 10px;
+    }
+} 

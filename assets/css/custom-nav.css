@@ -1,0 +1,46 @@
+/**
+ * Custom navigation bar styles for Orient Yacht theme
+ * Fixes language selector display
+ */
+
+/* Remove the static TR flag button */
+.yamm.main-menu.navbar-nav li.nav-item.tr-flag {
+    display: none !important;
+}
+
+/* Enhance language selector styles */
+.lang-switcher {
+    margin-left: 15px;
+    z-index: 1000;
+}
+
+.lang-switcher .current-lang {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    background-color: var(--accent-color, #33a4d8);
+    color: white;
+}
+
+.lang-switcher .current-lang img {
+    width: 24px;
+    height: 16px;
+    margin-right: 8px;
+    border-radius: 2px;
+}
+
+/* Fix responsive layout for navbar items */
+@media (max-width: 991px) {
+    .header-main__btn {
+        margin-left: 10px;
+    }
+}
+
+/* Fix height of language selector to match navbar height */
+.header-main .navbar .lang-switcher {
+    height: 100%;
+    display: flex;
+    align-items: center;
+} 

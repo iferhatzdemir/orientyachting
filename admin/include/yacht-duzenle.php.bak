@@ -1,0 +1,1000 @@
+<?php
+if(!defined("SABIT")) die("Erişim engellendi!");
+
+// Check if VT class is initialized
+if(!isset($VT) || !is_object($VT)) {
+    // This should never happen, but as a fallback
+    include_once(dirname(__DIR__) . "/class/VT.php");
+    $VT = new VT();
+}
+
+// Include SweetAlert2 only once at the top
+echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">';
+echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>';
+
+// Add custom styles for improved form appearance
+echo '<style>
+  .form-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-control:focus {
+    border-color: #3c8dbc;
+    box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
+  }
+  
+  .text-danger {
+    color: #dc3545 !important;
+  }
+  
+  .required-field-label:after {
+    content: "*";
+    color: #dc3545;
+    margin-left: 4px;
+  }
+  
+  .card-primary {
+    border-top: 3px solid #007bff;
+  }
+  
+  .custom-file-input ~ .custom-file-label::after {
+    content: "Gözat";
+  }
+  
+  .card-outline.card-info {
+    border-top: 3px solid #17a2b8;
+  }
+  
+  .card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+  
+  .tab-content .card {
+    box-shadow: none;
+  }
+  
+  .gallery-btn {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .current-image {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-width: 300px;
+  }
+  
+  .nav-tabs .nav-link.active {
+    border-top: 3px solid #007bff;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  
+  .custom-switch .custom-control-label {
+    cursor: pointer;
+  }
+  
+  /* Mobile device improvements */
+  @media (max-width: 767.98px) {
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-body {
+      padding: 1rem;
+    }
+    
+    .btn {
+      white-space: normal;
+    }
+  }
+</style>';
+
+// Initialize variables
+$bildirim = '';
+$veri = false;
+$dilVerileri = array();
+$secilenOzellikler = array();
+
+if(empty($_GET["ID"])) {
+    echo '<meta http-equiv="refresh" content="0;url='.SITE.'yachts">';
+    exit;
+}
+
+// Sanitize and validate ID
+$ID = intval($VT->filter($_GET["ID"]));
+if($ID <= 0) {
+    echo '<meta http-equiv="refresh" content="0;url='.SITE.'yachts">';
+    exit;
+}
+
+// Get yacht data and check if exists
+$veri = $VT->VeriGetir("yachts", "WHERE ID=?", array($ID), "ORDER BY ID ASC", 1);
+if($veri == false) {
+    echo '<meta http-equiv="refresh" content="0;url='.SITE.'yachts">';
+    exit;
+}
+
+// Get language data in a single query if possible
+$dilKayitlari = $VT->VeriGetir("urunler_dil", "WHERE urun_id=?", array($ID), "ORDER BY ID ASC");
+if($dilKayitlari != false) {
+    foreach($dilKayitlari as $dilKayit) {
+        $dilVerileri[$dilKayit["lang"]] = $dilKayit;
+    }
+}
+
+// Get yacht features in a single query
+$ozellikler = $VT->VeriGetir("yacht_features_pivot", "WHERE yacht_id=?", array($ID), "ORDER BY ID ASC");
+if($ozellikler != false) {
+    foreach($ozellikler as $ozellik) {
+        $secilenOzellikler[] = $ozellik["feature_id"];
+    }
+}
+
+// Form processing
+if($_POST) {
+    // Check required fields
+    $requiredFields = ['baslik', 'type_id', 'location_id', 'price_per_day'];
+    $missingFields = [];
+    
+    foreach($requiredFields as $field) {
+        if(empty($_POST[$field])) {
+            $missingFields[] = $field;
+        }
+    }
+    
+    if(empty($missingFields)) {
+        // Sanitize all input data
+        $baslik = $VT->filter($_POST["baslik"]);
+        $type_id = intval($VT->filter($_POST["type_id"]));
+        $length_m = floatval($VT->filter($_POST["length_m"]));
+        $capacity = intval($VT->filter($_POST["capacity"]));
+        $cabin_count = intval($VT->filter($_POST["cabin_count"]));
+        $guest_capacity = intval($VT->filter($_POST["guest_capacity"]));
+        $location_id = intval($VT->filter($_POST["location_id"]));
+        $crew = intval($VT->filter($_POST["crew"]));
+        $build_year = intval($VT->filter($_POST["build_year"]));
+        $price_per_day = floatval($VT->filter($_POST["price_per_day"]));
+        $price_per_week = floatval($VT->filter($_POST["price_per_week"]));
+        $metin = $VT->filter($_POST["metin"], true);
+        $motor_model = $VT->filter($_POST["motor_model"]);
+        $seo_title = $VT->filter($_POST["seo_title"]);
+        $seo_desc = $VT->filter($_POST["seo_desc"]);
+        
+        // Set boolean values
+        $durum = isset($_POST["durum"]) ? 1 : 2;
+        $availability = isset($_POST["availability"]) ? 1 : 2;
+        
+        // Generate SEF link
+        $seflink = $VT->seflink($baslik);
+        
+        // Initialize update parameters
+        $updateParams = [
+            $baslik, $type_id, $length_m, $capacity, $cabin_count, 
+            $guest_capacity, $location_id, $crew, $build_year, 
+            $price_per_day, $price_per_week, $metin, $seo_title, 
+            $seo_desc, $durum, $availability, $seflink, $motor_model, $ID
+        ];
+        
+        // Check for image upload
+        $imageUploaded = false;
+        if(!empty($_FILES["resim"]["name"])) {
+            // Validate file type and size
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            $maxSize = 5 * 1024 * 1024; // 5MB
+            
+            if(in_array($_FILES["resim"]["type"], $allowedTypes) && $_FILES["resim"]["size"] <= $maxSize) {
+                $yukle = $VT->upload("resim", "../images/yachts/");
+                if($yukle != false) {
+                    $imageUploaded = true;
+                    // Update with new image
+                    $updateQuery = "UPDATE yachts SET baslik=?, type_id=?, length_m=?, capacity=?, cabin_count=?, guest_capacity=?, location_id=?, crew=?, build_year=?, price_per_day=?, price_per_week=?, metin=?, seo_title=?, seo_desc=?, durum=?, availability=?, seflink=?, motor_model=?, resim=? WHERE ID=?";
+                    $updateParams = [
+                        $baslik, $type_id, $length_m, $capacity, $cabin_count, 
+                        $guest_capacity, $location_id, $crew, $build_year, 
+                        $price_per_day, $price_per_week, $metin, $seo_title, 
+                        $seo_desc, $durum, $availability, $seflink, $motor_model, $yukle, $ID
+                    ];
+                } else {
+                    $bildirim = "<script>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata!',
+                            text: 'Resim yükleme işleminiz başarısız. Dosya formatı veya boyutu uygun değil.',
+                            confirmButtonText: 'Tamam'
+                        });
+                    </script>";
+                }
+            } else {
+                $bildirim = "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Hata!',
+                        text: 'Geçersiz dosya formatı veya boyutu. Lütfen JPG, PNG, WEBP veya GIF formatında ve 5MB\'tan küçük bir resim yükleyin.',
+                        confirmButtonText: 'Tamam'
+                    });
+                </script>";
+            }
+        }
+        
+        // Update yacht info if no image errors
+        if(empty($bildirim)) {
+            // Start transaction for data integrity
+            $VT->baglan->beginTransaction();
+            
+            try {
+                // Update yacht info
+                if(!$imageUploaded) {
+                    $updateQuery = "UPDATE yachts SET baslik=?, type_id=?, length_m=?, capacity=?, cabin_count=?, guest_capacity=?, location_id=?, crew=?, build_year=?, price_per_day=?, price_per_week=?, metin=?, seo_title=?, seo_desc=?, durum=?, availability=?, seflink=?, motor_model=? WHERE ID=?";
+                }
+                
+                $guncelle = $VT->SorguCalistir($updateQuery, $updateParams);
+                
+                if($guncelle) {
+                    // Clean up existing features
+                    $VT->SorguCalistir("DELETE FROM yacht_features_pivot", "WHERE yacht_id=?", array($ID));
+                    
+                    // Add selected features
+                    if(!empty($_POST["features"]) && is_array($_POST["features"])) {
+                        foreach($_POST["features"] as $feature) {
+                            $featureId = intval($VT->filter($feature));
+                            if($featureId > 0) {
+                                $VT->SorguCalistir("INSERT INTO yacht_features_pivot", "SET yacht_id=?, feature_id=?", array($ID, $featureId));
+                            }
+                        }
+                    }
+                    
+                    // Process language data
+                    $dilSayisi = 0;
+                    $toplamDil = 0;
+                    $dilHatasi = false;
+                    $hataliDiller = '';
+                    
+                    if(!empty($_POST["lang"]) && is_array($_POST["lang"])) {
+                        foreach($_POST["lang"] as $lang => $value) {
+                            if(!empty($value["baslik"])) {
+                                $toplamDil++;
+                                $dil_baslik = $VT->filter($value["baslik"]);
+                                $dil_metin = $VT->filter($value["metin"], true);
+                                $dil_seo_title = $VT->filter($value["seo_title"]);
+                                $dil_seo_desc = $VT->filter($value["seo_desc"]);
+                                
+                                // Check if language record exists
+                                if(isset($dilVerileri[$lang])) {
+                                    $dilGuncelle = $VT->SorguCalistir("UPDATE urunler_dil", "SET baslik=?, metin=?, seo_title=?, seo_desc=? WHERE urun_id=? AND lang=?", array($dil_baslik, $dil_metin, $dil_seo_title, $dil_seo_desc, $ID, $lang));
+                                } else {
+                                    $dilGuncelle = $VT->SorguCalistir("INSERT INTO urunler_dil", "SET urun_id=?, lang=?, baslik=?, metin=?, seo_title=?, seo_desc=?", array($ID, $lang, $dil_baslik, $dil_metin, $dil_seo_title, $dil_seo_desc));
+                                }
+                                
+                                if($dilGuncelle) {
+                                    $dilSayisi++;
+                                } else {
+                                    $dilHatasi = true;
+                                    $hataliDiller .= $lang . ', ';
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Commit transaction
+                    $VT->baglan->commit();
+                    
+                    // Generate success message
+                    if($toplamDil > 0) {
+                        if($dilHatasi) {
+                            $hataliDiller = rtrim($hataliDiller, ', ');
+                            $bildirim = "<script>
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Yat güncellendi, bazı dil kayıtları başarısız!',
+                                    html: 'Yat başarıyla güncellendi.<br>Toplam ".$toplamDil." dil kaydından ".$dilSayisi." tanesi başarılı.<br>Başarısız diller: ".$hataliDiller."',
+                                    showConfirmButton: true,
+                                    timer: 3000,
+                                    timerProgressBar: true
+                                }).then((result) => {
+                                    window.location.href = '".SITE."yachts';
+                                });
+                            </script>";
+                        } else {
+                            $bildirim = "<script>
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Başarılı!',
+                                    html: 'Yat başarıyla güncellendi.<br>Toplam ".$toplamDil." dil kaydının tamamı başarıyla güncellendi.',
+                                    showConfirmButton: true,
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                }).then((result) => {
+                                    window.location.href = '".SITE."yachts';
+                                });
+                            </script>";
+                        }
+                    } else {
+                        $bildirim = "<script>
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Başarılı!',
+                                text: 'Yat başarıyla güncellendi.',
+                                showConfirmButton: true,
+                                timer: 2000,
+                                timerProgressBar: true
+                            }).then((result) => {
+                                window.location.href = '".SITE."yachts';
+                            });
+                        </script>";
+                    }
+                } else {
+                    // Rollback on error
+                    $VT->baglan->rollBack();
+                    $bildirim = "<script>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata!',
+                            text: 'Yat bilgileri güncellenirken bir sorun oluştu.',
+                            confirmButtonText: 'Tamam'
+                        });
+                    </script>";
+                }
+            } catch (Exception $e) {
+                // Rollback on exception
+                $VT->baglan->rollBack();
+                $bildirim = "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Sistem Hatası!',
+                        text: 'İşlem sırasında bir hata oluştu: " . $e->getMessage() . "',
+                        confirmButtonText: 'Tamam'
+                    });
+                </script>";
+            }
+        }
+    } else {
+        // Handle missing required fields
+        $fieldNames = [
+            'baslik' => 'Yat Adı',
+            'type_id' => 'Yat Tipi',
+            'location_id' => 'Lokasyon',
+            'price_per_day' => 'Günlük Fiyat'
+        ];
+        
+        $missingFieldNames = [];
+        foreach($missingFields as $field) {
+            $missingFieldNames[] = $fieldNames[$field];
+        }
+        
+        $bildirim = "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Eksik Bilgi!',
+                html: 'Lütfen aşağıdaki zorunlu alanları doldurunuz:<br><strong>" . implode(', ', $missingFieldNames) . "</strong>',
+                confirmButtonText: 'Tamam'
+            });
+        </script>";
+    }
+}
+?>
+
+<div class="content-wrapper">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark">Yat Düzenle</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="<?=SITE?>">Anasayfa</a></li>
+              <li class="breadcrumb-item active">Yat Düzenle</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="container-fluid">
+       <div class="row">
+       <div class="col-md-12">
+       <a href="<?=SITE?>yachts" class="btn btn-info" style="float:right; margin-bottom:10px; margin-left:10px;"><i class="fas fa-bars"></i> LİSTE</a> 
+        <a href="<?=SITE?>yacht-ekle" class="btn btn-success" style="float:right; margin-bottom:10px;"><i class="fa fa-plus"></i> YENİ EKLE</a>
+       </div>
+       </div>
+       
+       <div class="row">
+         <div class="col-md-12">
+           <div class="alert alert-info">
+             <i class="fa fa-info-circle"></i> * işaretli alanlar zorunludur.
+           </div>
+         </div>
+       </div>
+       
+       <form action="#" method="post" enctype="multipart/form-data">
+        <div class="col-md-12">
+          <div class="card card-primary">
+            <div class="card-header">
+              <h3 class="card-title">Yat Bilgileri</h3>
+            </div>
+            <div class="card-body">
+            
+              <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs" id="language-tabs" role="tablist">
+                  <li class="nav-item">
+                    <a class="nav-link active" id="genel-tab" data-toggle="tab" href="#genel" role="tab" aria-controls="genel" aria-selected="true">Genel Bilgiler</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="tr-tab" data-toggle="tab" href="#tr" role="tab" aria-controls="tr" aria-selected="false">Türkçe</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="en-tab" data-toggle="tab" href="#en" role="tab" aria-controls="en" aria-selected="false">İngilizce</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="de-tab" data-toggle="tab" href="#de" role="tab" aria-controls="de" aria-selected="false">Almanca</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="ru-tab" data-toggle="tab" href="#ru" role="tab" aria-controls="ru" aria-selected="false">Rusça</a>
+                  </li>
+                </ul>
+                
+                <div class="tab-content mt-3">
+                
+                  <!-- Genel Bilgiler Sekmesi -->
+                  <div class="tab-pane fade show active" id="genel" role="tabpanel" aria-labelledby="genel-tab">
+                    
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="baslik">Yat Adı <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="baslik" placeholder="Yat Adı" name="baslik" value="<?=$veri[0]["baslik"]?>" required>
+                          <div class="invalid-feedback">Yat adı zorunludur</div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="type_id">Yat Tipi <span class="text-danger">*</span></label>
+                          <select class="form-control select2" id="type_id" style="width: 100%;" name="type_id" required>
+                          <option value="">Yat Tipi Seçiniz</option>
+                          <?php
+                            $yatTipleri = $VT->VeriGetir("yacht_types", "WHERE durum=?", array(1), "ORDER BY ID ASC");
+                            if($yatTipleri != false) {
+                                for($i=0; $i<count($yatTipleri); $i++) {
+                                    if($veri[0]["type_id"] == $yatTipleri[$i]["ID"]) {
+                                        echo '<option value="'.$yatTipleri[$i]["ID"].'" selected>'.$yatTipleri[$i]["baslik"].'</option>';
+                                    } else {
+                                        echo '<option value="'.$yatTipleri[$i]["ID"].'">'.$yatTipleri[$i]["baslik"].'</option>';
+                                    }
+                                }
+                            }
+                          ?>
+                          </select>
+                          <div class="invalid-feedback">Yat tipi seçilmelidir</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="length_m">Uzunluk (metre)</label>
+                          <div class="input-group">
+                            <input type="number" class="form-control" id="length_m" placeholder="Uzunluk" name="length_m" step="0.01" min="0" value="<?=$veri[0]["length_m"]?>">
+                            <div class="input-group-append">
+                              <span class="input-group-text">m</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="capacity">Kapasite (kişi)</label>
+                          <div class="input-group">
+                            <input type="number" class="form-control" id="capacity" placeholder="Kapasite" name="capacity" min="0" value="<?= $veri[0]["capacity"] ?>">
+                            <div class="input-group-append">
+                              <span class="input-group-text">kişi</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="crew">Mürettebat Sayısı</label>
+                          <div class="input-group">
+                            <input type="number" class="form-control" id="crew" placeholder="Mürettebat" name="crew" min="0" value="<?= $veri[0]["crew"] ?>">
+                            <div class="input-group-append">
+                              <span class="input-group-text">kişi</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="cabin_count">Kabin Sayısı</label>
+                          <input type="number" class="form-control" id="cabin_count" placeholder="Kabin Sayısı" name="cabin_count" min="0" value="<?= $veri[0]["cabin_count"] ?>">
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="guest_capacity">Konaklama Kapasitesi (kişi)</label>
+                          <div class="input-group">
+                            <input type="number" class="form-control" id="guest_capacity" placeholder="Konaklama Kapasitesi" name="guest_capacity" min="0" value="<?= $veri[0]["guest_capacity"] ?>">
+                            <div class="input-group-append">
+                              <span class="input-group-text">kişi</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="build_year">Yapım Yılı</label>
+                          <input type="number" class="form-control" id="build_year" placeholder="Yapım Yılı" name="build_year" min="1900" max="<?php echo date('Y'); ?>" value="<?=$veri[0]["build_year"]?>">
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label for="motor_model">Motor Modeli/Tipi</label>
+                          <input type="text" class="form-control" id="motor_model" placeholder="Motor Modeli/Tipi" name="motor_model" value="<?=isset($veri[0]["motor_model"]) ? $veri[0]["motor_model"] : ''?>">
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="price_per_day">Günlük Fiyat (TL) <span class="text-danger">*</span></label>
+                          <div class="input-group">
+                            <input type="number" class="form-control" id="price_per_day" placeholder="Günlük Fiyat" name="price_per_day" step="0.01" min="0" required value="<?=$veri[0]["price_per_day"]?>">
+                            <div class="input-group-append">
+                              <span class="input-group-text">₺</span>
+                            </div>
+                          </div>
+                          <div class="invalid-feedback">Günlük fiyat girilmelidir</div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="price_per_week">Haftalık Fiyat (TL)</label>
+                          <div class="input-group">
+                            <input type="number" class="form-control" id="price_per_week" placeholder="Haftalık Fiyat" name="price_per_week" step="0.01" min="0" value="<?=$veri[0]["price_per_week"]?>">
+                            <div class="input-group-append">
+                              <span class="input-group-text">₺</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="location_id">Lokasyon <span class="text-danger">*</span></label>
+                          <select class="form-control select2" id="location_id" style="width: 100%;" name="location_id" required>
+                          <option value="">Lokasyon Seçiniz</option>
+                          <?php
+                            $lokasyonlar = $VT->VeriGetir("yacht_locations", "WHERE durum=?", array(1), "ORDER BY ID ASC");
+                            if($lokasyonlar != false) {
+                                for($i=0; $i<count($lokasyonlar); $i++) {
+                                    if($veri[0]["location_id"] == $lokasyonlar[$i]["ID"]) {
+                                        echo '<option value="'.$lokasyonlar[$i]["ID"].'" selected>'.$lokasyonlar[$i]["baslik"].' ('.$lokasyonlar[$i]["sehir"].')</option>';
+                                    } else {
+                                        echo '<option value="'.$lokasyonlar[$i]["ID"].'">'.$lokasyonlar[$i]["baslik"].' ('.$lokasyonlar[$i]["sehir"].')</option>';
+                                    }
+                                }
+                            }
+                          ?>
+                          </select>
+                          <div class="invalid-feedback">Lokasyon seçilmelidir</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="availability">Müsaitlik Durumu</label>
+                          <select class="form-control" id="availability" name="availability">
+                            <option value="1" <?=($veri[0]["availability"]==1 ? 'selected' : '')?>>Kiralanabilir</option>
+                            <option value="0" <?=($veri[0]["availability"]==0 ? 'selected' : '')?>>Kiralanmaz (Pasif)</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-8">
+                        <div class="form-group">
+                          <label>Durum</label><br />
+                          <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="durum" name="durum" <?=($veri[0]["durum"]==1 ? 'checked' : '')?> value="1" data-bootstrap-switch>
+                            <label class="custom-control-label" for="durum">Aktif/Pasif</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label for="summernote">Açıklama (Varsayılan Dil)</label>
+                          <textarea class="textarea" id="summernote" placeholder="Yat hakkında detaylı bilgi" name="metin" style="width: 100%; height: 250px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"><?=stripslashes($veri[0]["metin"])?></textarea>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label for="resim">Ana Resim</label>
+                          <div class="input-group">
+                            <div class="custom-file">
+                              <input type="file" class="custom-file-input" id="resim" name="resim" accept="image/*">
+                              <label class="custom-file-label" for="resim">Resim Seç</label>
+                            </div>
+                          </div>
+                          <small class="form-text text-muted">Maksimum boyut: 5MB, İzin verilen formatlar: JPG, PNG, WEBP, GIF</small>
+                        </div>
+                      </div>
+                      <?php 
+                      if(!empty($veri[0]["resim"])) {
+                          echo '<div class="col-md-12 mb-3">
+                              <div class="form-group">
+                                  <label>Mevcut Resim:</label>
+                                  <div class="mt-2">
+                                    <img src="'.SITE.'images/yachts/'.$veri[0]["resim"].'" class="img-fluid img-thumbnail" style="max-height: 150px;">
+                                  </div>
+                              </div>
+                          </div>';
+                      }
+                      ?>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <a href="<?=SITE?>resimler/yachts/<?=$veri[0]["ID"]?>" class="btn btn-info">
+                            <i class="fas fa-images"></i> Yat Galeri Yönetimi
+                          </a>
+                          <small class="text-muted ml-2">Yat için ek resimler eklemek veya düzenlemek için tıklayın.</small>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="seo_title">SEO Başlık</label>
+                          <input type="text" class="form-control" id="seo_title" placeholder="SEO Başlık" name="seo_title" value="<?=$veri[0]["seo_title"]?>">
+                          <small class="form-text text-muted">Boş bırakırsanız, yat adı kullanılacaktır.</small>
+                        </div>
+                      </div>
+                      <div class="col-md-8">
+                        <div class="form-group">
+                          <label for="seo_desc">SEO Açıklama</label>
+                          <input type="text" class="form-control" id="seo_desc" placeholder="SEO Açıklama" name="seo_desc" maxlength="160" value="<?=$veri[0]["seo_desc"]?>">
+                          <small class="form-text text-muted">Maksimum 160 karakter, ideal olarak 120-155 karakter arası.</small>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label for="features">Yat Özellikleri</label>
+                          <select class="form-control select2" id="features" multiple="multiple" name="features[]" style="width: 100%;">
+                            <?php
+                              $features = $VT->VeriGetir("yacht_features", "WHERE durum=?", array(1), "ORDER BY baslik ASC");
+                              if($features != false) {
+                                  for($i=0; $i<count($features); $i++) {
+                                      $selected = in_array($features[$i]["ID"], $secilenOzellikler) ? 'selected' : '';
+                                      echo '<option value="'.$features[$i]["ID"].'" '.$selected.'>'.$features[$i]["baslik"].'</option>';
+                                  }
+                              }
+                            ?>
+                          </select>
+                          <small class="form-text text-muted">Birden fazla özellik seçmek için listeden seçim yapabilirsiniz.</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Türkçe Sekmesi -->
+                  <div class="tab-pane fade" id="tr" role="tabpanel" aria-labelledby="tr-tab">
+                    <div class="card card-outline card-info">
+                      <div class="card-header">
+                        <h3 class="card-title">Türkçe İçerik</h3>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="tr_baslik">Başlık (TR)</label>
+                              <input type="text" class="form-control" id="tr_baslik" placeholder="Türkçe Başlık" name="lang[tr][baslik]" value="<?=(isset($dilVerileri['tr']) ? $dilVerileri['tr']['baslik'] : '')?>">
+                              <small class="form-text text-muted">Eğer boş bırakılırsa, ana başlık kullanılır.</small>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="tr_metin">Açıklama (TR)</label>
+                              <textarea class="textarea" id="tr_metin" placeholder="Türkçe açıklama" name="lang[tr][metin]" style="width: 100%; height: 250px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"><?=(isset($dilVerileri['tr']) ? stripslashes($dilVerileri['tr']['metin']) : '')?></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="tr_seo_title">SEO Başlık (TR)</label>
+                              <input type="text" class="form-control" id="tr_seo_title" placeholder="Türkçe SEO Başlık" name="lang[tr][seo_title]" value="<?=(isset($dilVerileri['tr']) ? $dilVerileri['tr']['seo_title'] : '')?>">
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="tr_seo_desc">SEO Açıklama (TR)</label>
+                              <input type="text" class="form-control" id="tr_seo_desc" placeholder="Türkçe SEO Açıklama" name="lang[tr][seo_desc]" maxlength="160" value="<?=(isset($dilVerileri['tr']) ? $dilVerileri['tr']['seo_desc'] : '')?>">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- İngilizce Sekmesi -->
+                  <div class="tab-pane fade" id="en" role="tabpanel" aria-labelledby="en-tab">
+                    <div class="card card-outline card-info">
+                      <div class="card-header">
+                        <h3 class="card-title">İngilizce İçerik</h3>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="en_baslik">Başlık (EN)</label>
+                              <input type="text" class="form-control" id="en_baslik" placeholder="İngilizce Başlık" name="lang[en][baslik]" value="<?=(isset($dilVerileri['en']) ? $dilVerileri['en']['baslik'] : '')?>">
+                              <small class="form-text text-muted">Eğer boş bırakılırsa, ana başlık kullanılır.</small>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="en_metin">Açıklama (EN)</label>
+                              <textarea class="textarea" id="en_metin" placeholder="İngilizce açıklama" name="lang[en][metin]" style="width: 100%; height: 250px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"><?=(isset($dilVerileri['en']) ? stripslashes($dilVerileri['en']['metin']) : '')?></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="en_seo_title">SEO Başlık (EN)</label>
+                              <input type="text" class="form-control" id="en_seo_title" placeholder="İngilizce SEO Başlık" name="lang[en][seo_title]" value="<?=(isset($dilVerileri['en']) ? $dilVerileri['en']['seo_title'] : '')?>">
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="en_seo_desc">SEO Açıklama (EN)</label>
+                              <input type="text" class="form-control" id="en_seo_desc" placeholder="İngilizce SEO Açıklama" name="lang[en][seo_desc]" maxlength="160" value="<?=(isset($dilVerileri['en']) ? $dilVerileri['en']['seo_desc'] : '')?>">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Almanca Sekmesi -->
+                  <div class="tab-pane fade" id="de" role="tabpanel" aria-labelledby="de-tab">
+                    <div class="card card-outline card-info">
+                      <div class="card-header">
+                        <h3 class="card-title">Almanca İçerik</h3>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="de_baslik">Başlık (DE)</label>
+                              <input type="text" class="form-control" id="de_baslik" placeholder="Almanca Başlık" name="lang[de][baslik]" value="<?=(isset($dilVerileri['de']) ? $dilVerileri['de']['baslik'] : '')?>">
+                              <small class="form-text text-muted">Eğer boş bırakılırsa, ana başlık kullanılır.</small>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="de_metin">Açıklama (DE)</label>
+                              <textarea class="textarea" id="de_metin" placeholder="Almanca açıklama" name="lang[de][metin]" style="width: 100%; height: 250px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"><?=(isset($dilVerileri['de']) ? stripslashes($dilVerileri['de']['metin']) : '')?></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="de_seo_title">SEO Başlık (DE)</label>
+                              <input type="text" class="form-control" id="de_seo_title" placeholder="Almanca SEO Başlık" name="lang[de][seo_title]" value="<?=(isset($dilVerileri['de']) ? $dilVerileri['de']['seo_title'] : '')?>">
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="de_seo_desc">SEO Açıklama (DE)</label>
+                              <input type="text" class="form-control" id="de_seo_desc" placeholder="Almanca SEO Açıklama" name="lang[de][seo_desc]" maxlength="160" value="<?=(isset($dilVerileri['de']) ? $dilVerileri['de']['seo_desc'] : '')?>">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Rusça Sekmesi -->
+                  <div class="tab-pane fade" id="ru" role="tabpanel" aria-labelledby="ru-tab">
+                    <div class="card card-outline card-info">
+                      <div class="card-header">
+                        <h3 class="card-title">Rusça İçerik</h3>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="ru_baslik">Başlık (RU)</label>
+                              <input type="text" class="form-control" id="ru_baslik" placeholder="Rusça Başlık" name="lang[ru][baslik]" value="<?=(isset($dilVerileri['ru']) ? $dilVerileri['ru']['baslik'] : '')?>">
+                              <small class="form-text text-muted">Eğer boş bırakılırsa, ana başlık kullanılır.</small>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="ru_metin">Açıklama (RU)</label>
+                              <textarea class="textarea" id="ru_metin" placeholder="Rusça açıklama" name="lang[ru][metin]" style="width: 100%; height: 250px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"><?=(isset($dilVerileri['ru']) ? stripslashes($dilVerileri['ru']['metin']) : '')?></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="ru_seo_title">SEO Başlık (RU)</label>
+                              <input type="text" class="form-control" id="ru_seo_title" placeholder="Rusça SEO Başlık" name="lang[ru][seo_title]" value="<?=(isset($dilVerileri['ru']) ? $dilVerileri['ru']['seo_title'] : '')?>">
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="ru_seo_desc">SEO Açıklama (RU)</label>
+                              <input type="text" class="form-control" id="ru_seo_desc" placeholder="Rusça SEO Açıklama" name="lang[ru][seo_desc]" maxlength="160" value="<?=(isset($dilVerileri['ru']) ? $dilVerileri['ru']['seo_desc'] : '')?>">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+              
+            </div>
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary">Güncelle</button>
+            </div>
+          </div>
+        </div>
+       </form>
+       
+      </div>
+    </section>
+  </div>
+
+<script>
+  $(function () {
+    //Initialize Select2 Elements
+    $('.select2').select2({
+      language: "tr",
+      placeholder: "Seçiniz...",
+      allowClear: true
+    });
+    
+    // Initialize Summernote with better defaults
+    $('.textarea').summernote({
+      height: 250,
+      toolbar: [
+        ['style', ['style']],
+        ['font', ['bold', 'italic', 'underline', 'clear']],
+        ['fontname', ['fontname']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['table', ['table']],
+        ['insert', ['link', 'picture']],
+        ['view', ['fullscreen', 'codeview', 'help']]
+      ],
+      callbacks: {
+        onImageUpload: function(files) {
+          // Image upload handling could be added here
+          alert('Resim yükleme özelliği şu anda devre dışı. Lütfen resim URL\'i ekleyin.');
+        }
+      }
+    });
+    
+    // Bootstrap Switch
+    $("input[data-bootstrap-switch]").each(function(){
+      $(this).bootstrapSwitch({
+        onText: 'Aktif',
+        offText: 'Pasif',
+        onColor: 'success',
+        offColor: 'danger'
+      });
+    });
+    
+    // Form validation
+    $('form').on('submit', function(e) {
+      let isValid = true;
+      const requiredFields = ['baslik', 'type_id', 'location_id', 'price_per_day'];
+      const fieldLabels = {
+        'baslik': 'Yat Adı',
+        'type_id': 'Yat Tipi',
+        'location_id': 'Lokasyon',
+        'price_per_day': 'Günlük Fiyat'
+      };
+      
+      const missingFields = [];
+      
+      requiredFields.forEach(field => {
+        const $field = $(`[name="${field}"]`);
+        if ($field.val() === '' || $field.val() === null) {
+          $field.addClass('is-invalid');
+          isValid = false;
+          missingFields.push(fieldLabels[field]);
+        } else {
+          $field.removeClass('is-invalid');
+        }
+      });
+      
+      if (!isValid) {
+        e.preventDefault();
+        Swal.fire({
+          icon: 'error',
+          title: 'Eksik Alanlar',
+          html: `Lütfen aşağıdaki zorunlu alanları doldurun:<br><strong>${missingFields.join(', ')}</strong>`,
+          confirmButtonText: 'Tamam'
+        });
+      }
+    });
+    
+    // Dynamically show the file name when selected
+    $('input[type="file"]').on('change', function() {
+      const fileName = $(this).val().split('\\').pop();
+      $(this).next('.custom-file-label').html(fileName || 'Dosya seçilmedi');
+    });
+  });
+  
+  // Function to handle tab switching and preserve state
+  function saveTabState(tabId) {
+    localStorage.setItem('activeYachtTab', tabId);
+  }
+  
+  // Restore active tab on page load
+  $(document).ready(function() {
+    const activeTab = localStorage.getItem('activeYachtTab');
+    if (activeTab) {
+      $(`#${activeTab}-tab`).tab('show');
+    }
+    
+    // Add event listener for tab changes
+    $('.nav-link').on('shown.bs.tab', function (e) {
+      const id = $(e.target).attr('id').replace('-tab', '');
+      saveTabState(id);
+    });
+  });
+</script> 
+
+<!-- SweetAlert2 kütüphanesi -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Bildirim çıktısı -->
+<?php echo $bildirim; ?>
+
+<?php
+    } else {
+        echo '<meta http-equiv="refresh" content="0;url='.SITE.'yachts">';
+    }
+} else {
+    echo '<meta http-equiv="refresh" content="0;url='.SITE.'yachts">';
+}
+?> 

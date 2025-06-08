@@ -1,0 +1,26 @@
+# Allow PHP scripts to be executed
+AddHandler application/x-httpd-php .php
+
+# Set the default character set
+AddDefaultCharset UTF-8
+
+# Remove index.php from URLs
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ $1.php [L]
+
+# Allow access from all domains
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "POST, GET, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type"
+</IfModule>
+
+# Deny access to sensitive files
+<FilesMatch "(\.(bak|config|dist|inc|ini|log|sql|tar|xml|tpl)|~)$">
+    Require all denied
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes 

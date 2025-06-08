@@ -1,0 +1,83 @@
+Options -indexes
+RewriteEngine On
+RewriteBase /orientyachting/
+
+# Dil değiştirme yönlendirmesi
+RewriteRule ^dil-degistir/([a-zA-Z]{2})$ index.php?sayfa=dil-degistir&seflink=$1 [L,QSA]
+
+# Dil öneki ile URL'ler için kurallar (örn: /en/yatlar, /tr/yatlar)
+RewriteRule ^(en|tr|de|ru)/yatlar$ index.php?sayfa=yachts&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/yacht-listing$ index.php?sayfa=yacht-listing&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/yacht-types$ index.php?sayfa=yacht-types&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/yacht-type/([a-zA-Z0-9-]+)$ index.php?sayfa=yacht-listing&type_seflink=$2&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/yat/([a-zA-Z0-9-]+)$ index.php?sayfa=yacht-detay&seflink=$2&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/kategori/([a-zA-Z0-9-]+)$ index.php?sayfa=yacht-category&kategori=$2&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/hizmetlerimiz$ index.php?sayfa=services&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/hizmetler/([a-zA-Z0-9-]+)$ index.php?sayfa=service-detail&seflink=$2&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/hakkimizda$ index.php?sayfa=hakkimizda&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/iletisim$ index.php?sayfa=iletisim&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/rezervasyon$ index.php?sayfa=rezervasyon&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/blog$ index.php?sayfa=bloglar&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/blog/([a-zA-Z0-9-]+)$ index.php?sayfa=blog-detay&seflink=$2&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/?$ index.php?lang=$1 [L,QSA]
+
+# Standart URL'ler (varsayılan dil ile)
+RewriteRule ^anasayfa$ index.php [NC]
+RewriteRule ^yatlar$ index.php?sayfa=yachts [L,QSA]
+RewriteRule ^yacht-listing$ index.php?sayfa=yat-listesi [L,QSA]
+RewriteRule ^yacht-types$ index.php?sayfa=yacht-types [L,QSA]
+RewriteRule ^yacht-type/([a-zA-Z0-9-]+)$ index.php?sayfa=yacht-listing&type_seflink=$1 [L,QSA]
+RewriteRule ^yat-listesi$ index.php?sayfa=yat-listesi [L,QSA]
+RewriteRule ^yat/([a-zA-Z0-9-]+)$ index.php?sayfa=yacht-detay&seflink=$1 [L,QSA]
+RewriteRule ^rezervasyon-yap$ index.php?sayfa=rezervasyon-yap [NC]
+RewriteRule ^kategori/([a-zA-Z0-9-]+)$ index.php?sayfa=yacht-category&kategori=$1 [L,QSA]
+RewriteRule ^blog-detay/(.*)$ index.php?sayfa=blog-detay&seflink=$1 [NC]
+RewriteRule ^urun/(.*)$ index.php?sayfa=urun-detay&seflink=$1 [NC]
+RewriteRule ^sepet$ index.php?sayfa=sepet [NC]
+RewriteRule ^sepet-sil/(.*)/(.*)$ index.php?sayfa=sepet-sil&urunID=$1&varyasyonID=$2 [NC]
+RewriteRule ^sepet-sil/(.*)$ index.php?sayfa=sepet-sil&urunID=$1 [NC]
+RewriteRule ^sepet-sil$ index.php?sayfa=sepet-sil [NC]
+
+RewriteRule ^gizlilik-politikasi/(.*)$ index.php?sayfa=gizlilik-politikasi&seflink=$1 [NC]
+RewriteRule ^kurumsal/(.*)$ index.php?sayfa=kurumsal&seflink=$1 [NC]
+RewriteRule ^blog$ index.php?sayfa=bloglar [NC]
+RewriteRule ^services/([a-zA-Z0-9_-]+)$ index.php?sayfa=service-detail&seflink=$1 [NC,L,QSA]
+RewriteRule ^services$ index.php?sayfa=services [NC,L,QSA]
+RewriteRule ^hizmetlerimiz$ index.php?sayfa=services [L,QSA]
+RewriteRule ^favorilerim/(.*)$ index.php?sayfa=favorilerim&ID=$1 [NC]
+RewriteRule ^favorilerim$ index.php?sayfa=favorilerim [NC]
+
+RewriteRule ^uyelik$ index.php?sayfa=uyelik [NC]
+RewriteRule ^hesabim$ index.php?sayfa=hesabim [NC]
+RewriteRule ^cikis-yap$ index.php?sayfa=cikis [NC]
+RewriteRule ^sifre-belirle/(.*)$ index.php?sayfa=sifre-belirle&seflink=$1 [NC]
+RewriteRule ^odeme-tipi$ index.php?sayfa=odeme-tipi [NC]
+RewriteRule ^odeme-yap$ index.php?sayfa=odeme-yap [NC]
+RewriteRule ^odeme-sonuc$ index.php?sayfa=odeme-sonuc [NC]
+RewriteRule ^kk-odeme-sonuc$ kk-odeme-sonuc.php [NC]
+RewriteRule ^kk-kayit$ index.php?sayfa=kk-kayit [NC]
+
+RewriteRule ^siparislerim$ index.php?sayfa=siparislerim [NC]
+RewriteRule ^siparis-detay/(.*)$ index.php?sayfa=siparis-detay&sipariskodu=$1 [NC]
+RewriteRule ^siparis-takip$ index.php?sayfa=siparis-takip [NC]
+RewriteRule ^iadeler$ index.php?sayfa=iadeler [NC]
+RewriteRule ^iade-detay/(.*)$ index.php?sayfa=iade-detay&iadekodu=$1 [NC]
+
+RewriteRule ^iletisim$ index.php?sayfa=iletisim [L,QSA]
+RewriteRule ^hesap-numaramiz$ index.php?sayfa=hesap-numaramiz [NC]
+
+RewriteRule ^arama$ index.php?sayfa=arama [QSA]
+
+RewriteRule ^galeri$ index.php?sayfa=galeri [L,QSA]
+RewriteRule ^galeri-detay/([a-zA-Z0-9-]+)$ index.php?sayfa=galeri-detay&seflink=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/galeri$ index.php?sayfa=galeri&lang=$1 [L,QSA]
+RewriteRule ^(en|tr|de|ru)/galeri-detay/([a-zA-Z0-9-]+)$ index.php?sayfa=galeri-detay&seflink=$2&lang=$1 [L,QSA]
+
+# Contact page routes
+RewriteRule ^contact$ index.php?sayfa=contact [L,QSA]
+RewriteRule ^(en|tr|de|ru)/contact$ index.php?sayfa=contact&lang=$1 [L,QSA]
+RewriteRule ^iletisim$ index.php?sayfa=contact [L,QSA]
+
+<ifmodule mod_headers.c>
+Header always edit Set-Cookie ^(.*)$ $1;SameSite=None;Secure
+</ifmodule> 

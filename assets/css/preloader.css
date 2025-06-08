@@ -1,0 +1,421 @@
+/* Luxury Yacht Preloader Styles */
+
+#yacht-preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #0a192f 0%, #0f2035 50%, #1c3654 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+}
+
+.preloader-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+}
+
+.luxury-yacht {
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.yacht-svg {
+    transform-origin: center;
+    animation: float 4s ease-in-out infinite;
+}
+
+/* SVG Drawing Animations */
+.yacht-hull {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawPath 2s ease-in-out forwards;
+    stroke: rgba(255, 255, 255, 0.9);
+}
+
+.yacht-cabin {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: drawPath 1.5s ease-in-out 0.3s forwards;
+    stroke: rgba(255, 255, 255, 0.9);
+}
+
+.yacht-deck-detail, .yacht-window {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: drawPath 1s ease-in-out 0.8s forwards;
+    stroke: rgba(255, 255, 255, 0.8);
+}
+
+.yacht-flag {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: drawPath 1s ease-in-out 1.2s forwards, wave 3s ease-in-out 1.5s infinite;
+    stroke: rgba(255, 255, 255, 0.9);
+}
+
+.wave {
+    stroke-dasharray: 800;
+    stroke-dashoffset: 800;
+    opacity: 0;
+}
+
+.wave1 {
+    animation: drawWave 3s ease-in-out 1.5s infinite;
+    stroke: rgba(52, 152, 219, 0.8);
+}
+
+.wave2 {
+    animation: drawWave 3s ease-in-out 1.7s infinite;
+    stroke: rgba(41, 128, 185, 0.6);
+}
+
+.wave3 {
+    animation: drawWave 3s ease-in-out 1.9s infinite;
+    stroke: rgba(26, 82, 118, 0.4);
+}
+
+.loading-text {
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 8px;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-in-out 1.5s forwards;
+}
+
+.loading-text span {
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+.loading-bar {
+    width: 200px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.loading-progress {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    animation: loading 2.5s ease-in-out forwards;
+}
+
+/* Animation Keyframes */
+@keyframes drawPath {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes drawWave {
+    0% {
+        stroke-dashoffset: 800;
+        opacity: 0;
+    }
+    40% {
+        opacity: 0.8;
+    }
+    100% {
+        stroke-dashoffset: -800;
+        opacity: 0;
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes loading {
+    0% {
+        width: 0;
+    }
+    20% {
+        width: 40%;
+    }
+    50% {
+        width: 60%;
+    }
+    80% {
+        width: 85%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+@keyframes wave {
+    0%, 100% {
+        transform: scaleX(1);
+    }
+    50% {
+        transform: scaleX(0.95) scaleY(0.98);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        stroke: rgba(255, 255, 255, 0.9);
+    }
+    50% {
+        stroke: rgba(255, 255, 255, 1);
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7));
+    }
+    100% {
+        stroke: rgba(255, 255, 255, 0.9);
+    }
+}
+
+/* Hide preloader when page is loaded */
+.preloader-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Orient Yachting Luxury Preloader
+-------------------------------------------------- */
+.orient-preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0d2c47;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s;
+}
+
+.orient-preloader.loaded {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.preloader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+/* Yacht Animation */
+.yacht-animation {
+    position: relative;
+    width: 300px;
+    height: 150px;
+    margin-bottom: 30px;
+    animation: yacht-float 3s ease-in-out infinite;
+}
+
+.yacht-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.yacht-path {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: draw-yacht 3s forwards ease-in-out;
+}
+
+.yacht-mast {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: draw-yacht 2s 0.5s forwards ease-in-out;
+}
+
+.yacht-flag {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: draw-yacht 1.5s 1s forwards ease-in-out;
+}
+
+@keyframes draw-yacht {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes yacht-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Ocean Waves Animation */
+.ocean-animation {
+    position: relative;
+    width: 300px;
+    height: 40px;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 300px;
+    height: 40px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 40"><path d="M0,20 Q75,40 150,20 T300,20" fill="none" stroke="%23c8a97e" stroke-width="2"/></svg>') repeat-x;
+    opacity: 0;
+    animation-name: wave-animation;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.wave-1 {
+    animation-duration: 5s;
+    animation-delay: 0s;
+}
+
+.wave-2 {
+    animation-duration: 7s;
+    animation-delay: 1s;
+}
+
+.wave-3 {
+    animation-duration: 9s;
+    animation-delay: 2s;
+}
+
+@keyframes wave-animation {
+    0% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    10% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    90% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Logo Container */
+.logo-container {
+    margin-bottom: 25px;
+    text-align: center;
+    opacity: 0;
+    animation: logo-fade-in 1.5s ease-in-out 1s forwards;
+}
+
+.preloader-logo {
+    max-width: 180px;
+    height: auto;
+    transform: scale(0.9);
+    animation: logo-pulse 2s ease-in-out infinite;
+}
+
+@keyframes logo-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes logo-pulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        transform: scale(1.05);
+        filter: brightness(1.2);
+    }
+}
+
+/* Loading Bar */
+.loading-bar {
+    width: 300px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loading-progress {
+    width: 0;
+    height: 100%;
+    background-color: #c8a97e;
+    border-radius: 2px;
+    animation: loading-animation 3s ease-in-out forwards;
+}
+
+@keyframes loading-animation {
+    0% {
+        width: 0;
+    }
+    50% {
+        width: 70%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+    .yacht-animation, .ocean-animation, .loading-bar {
+        width: 250px;
+    }
+    
+    .preloader-logo {
+        max-width: 150px;
+    }
+    
+    .yacht-animation {
+        height: 120px;
+    }
+} 

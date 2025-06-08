@@ -1,0 +1,34 @@
+# 🛥️ Cursor Rules for PHP 7.3-Based Yacht Rental Project
+
+───────────────────────────────────────────────  
+📦 CORE PRINCIPLES  
+───────────────────────────────────────────────  
+- Maintain compatibility with the existing include-based architecture.  
+- All database operations MUST be done via the VT class (PDO-based).  
+- New features (yachts, features, inquiries, etc.) must follow the modular structure.  
+- Use define()-based lang files for UI; use DB for content translations.  
+- Apply full SEO and structured data (Open Graph, Twitter Card, JSON-LD) per yacht detail.  
+- All additions must be fail-safe and production-ready.  
+- ✅ **All code must be fully compatible with PHP 7.3. Do not use features introduced in PHP 7.4 or later (e.g., arrow functions, typed properties, null coalescing assignment, union types, attributes, etc.)**
+
+───────────────────────────────────────────────  
+📁 ARCHITECTURE & ROUTING  
+───────────────────────────────────────────────  
+**Frontend:**  
+- Entry: `index.php`  
+- Dynamic routing via `$_GET["sayfa"]`  
+- Includes: `/data/baglanti.php`, `/data/ust.php`, `/data/footer.php`  
+- Pages under `/include/`  
+- CSS auto-load per page  
+
+**Admin Panel:**  
+- Entry: `/admin/index.php`  
+- Includes: `/data/sidebar.php`, `/data/header.php`, `/data/footer.php`  
+- Pages under `/admin/include/`  
+- Session control required  
+
+**Routing:**  
+- Friendly URLs via `.htaccess`:  
+  ```apache
+  RewriteRule ^yatlar$ index.php?sayfa=yachts [L,QSA]  
+  RewriteRule ^yat/([a-zA-Z0-9-]+)$ index.php?sayfa=yacht-detay&seflink=$1 [L,QSA]

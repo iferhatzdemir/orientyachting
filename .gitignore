@@ -1,0 +1,36 @@
+# IDE & System Files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Configuration Files
+inc/config.php
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Uploads and media
+/images/yachts/*
+!/images/yachts/.gitkeep
+/images/yachts/videos/*
+!/images/yachts/videos/.gitkeep
+
+# Cache and temporary files
+/cache/
+/temp/
+*.cache
+*.tmp
+
+# Environment files
+.env
+.env.*
+!.env.example 
