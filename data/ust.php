@@ -102,7 +102,27 @@
 									<?php
 								}
 							}
-							?>
+<?php
+// Query to list yacht types that have active yachts
+$yachtTypes=$VT->VeriGetir("yacht_types \
+    INNER JOIN yachts ON yacht_types.id = yachts.type_id",
+    "WHERE yacht_types.durum=? AND yachts.is_active=?",
+    array(1, 1),
+    "GROUP BY yacht_types.id ORDER BY yacht_types.sirano ASC");
+
+if($yachtTypes!=false)
+{
+    for ($i=0; $i <count($yachtTypes); $i++) {
+        ?>
+<li class="luxury-submenu-item">
+    <a class="luxury-submenu-link" href="<?=SITE?>yacht-type/<?=$yachtTypes[$i]["seflink"]?>">
+        <span class="submenu-diamond"></span>
+        <?=stripslashes($yachtTypes[$i]["title"])?></a>
+</li>
+        <?php
+    }
+}
+?>
 						</ul>
 					</li>
 					
