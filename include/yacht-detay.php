@@ -69,9 +69,9 @@ $yachtData = array(
 if($yacht != false) {
     $yacht = $yacht[0]; // Get first row
     $yacht_id = $yacht["ID"];
-    
+
     $yachtData["name"] = $yacht["baslik"] ?? $yachtData["name"];
-    
+
     // Format prices based on database fields
     if(isset($yacht["price_per_week"]) && !empty($yacht["price_per_week"])) {
         $yachtData["price"] = "€" . number_format($yacht["price_per_week"]);
@@ -80,7 +80,7 @@ if($yacht != false) {
         $yachtData["price"] = "€" . number_format($yacht["price_per_day"]);
         $yachtData["price_period"] = "per day";
     }
-    
+
     $yachtData["location"] = $location_name;
     $yachtData["length"] = isset($yacht["length_m"]) ? $yacht["length_m"] . "m" : $yachtData["length"];
     $yachtData["guests"] = $yacht["capacity"] ?? $yacht["guest_capacity"] ?? $yachtData["guests"];
@@ -91,110 +91,51 @@ if($yacht != false) {
     $yachtData["speed"] = isset($yacht["speed"]) ? $yacht["speed"] . " knots" : $yachtData["speed"];
     $yachtData["builder"] = $yacht["builder"] ?? $yachtData["builder"];
     $yachtData["description"] = $yacht["metin"] ?? $yachtData["description"];
-    
+
     // Get main image
     if(isset($yacht["resim"]) && !empty($yacht["resim"])) {
         $yachtData["main_image"] = SITE . "images/yachts/" . $yacht["resim"];
     }
 }
 
-// Get all yacht images and videos
-$galleryMedia = array();
+// Gallery helper - gather all media for the yacht
+function fetchGalleryMedia($VT, $yachtId, $mainImage, $defaultImages) {
+    $items = array();
 
-// Try to get images and videos from database
-if(isset($yacht_id) && $yacht_id > 0) {
-    // İlk olarak, ana resmi ekleyelim
-    if(isset($yacht) && !empty($yacht["resim"])) {
-        $galleryMedia[] = array(
-            'url' => SITE . "images/yachts/" . $yacht["resim"],
-            'type' => 'image'
-        );
+    if (!empty($mainImage)) {
+        $items[] = array('url' => $mainImage, 'type' => 'image');
     }
-    
-    // Şimdi de veritabanındaki diğer resimleri ekleyelim
-    $media = $VT->VeriGetir("resimler", "WHERE tablo=? AND KID=?", array("yachts", $yacht_id));
-    
-    if($media) {
-        foreach($media as $item) {
-            // Check if it's a video file
-            $filename = $item["resim"];
-            $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-            $isVideo = in_array($extension, array('mp4', 'webm', 'ogg', 'mov'));
-            
-            // Determine URL based on file type
-            $mediaUrl = '';
-            $mediaType = 'image';
-            
-            if($isVideo) {
-                $mediaType = 'video';
-                // Video dosyaları videos klasöründe
-                if(file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . ltrim(SITE, '/') . 'images/yachts/videos/' . $filename)) {
-                    $mediaUrl = SITE . "images/yachts/videos/" . $filename;
-                } else {
-                    $mediaUrl = SITE . "images/yachts/videos/" . $filename; // Varsayılan yol
-                }
-            } else {
-                // Resim dosyaları images/yachts klasöründe
-                $mediaUrl = SITE . "images/yachts/" . $filename;
-}
 
-            // Only add if not already in the gallery
-            $isDuplicate = false;
-            foreach($galleryMedia as $existingMedia) {
-                if($existingMedia['url'] === $mediaUrl) {
-                    $isDuplicate = true;
-                    break;
+    if ($yachtId > 0) {
+        $rows = $VT->VeriGetir("resimler", "WHERE tablo=? AND KID=?", array("yachts", $yachtId));
+        if ($rows) {
+            foreach ($rows as $row) {
+                $filename = $row['resim'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $type = in_array($ext, array('mp4', 'webm', 'ogg', 'mov')) ? 'video' : 'image';
+                $path = ($type === 'video') ? SITE . "images/yachts/videos/" . $filename : SITE . "images/yachts/" . $filename;
+
+                if (!in_array($path, array_column($items, 'url'))) {
+                    $items[] = array('url' => $path, 'type' => $type);
                 }
-            }
-            
-            if(!$isDuplicate && !empty($mediaUrl)) {
-                $galleryMedia[] = array(
-                    'url' => $mediaUrl,
-                    'type' => $mediaType
-                );
             }
         }
     }
-}
 
-// Hiç medya yoksa, varsayılan resimler ekleyelim
-if(empty($galleryMedia)) {
-    $galleryMedia[] = array(
-        'url' => SITE . "assets/img/ocean-background.jpg",
-        'type' => 'image'
-    );
-}
-
-// Add main image to gallery if it's not already included
-$mainImageAdded = false;
-if (!empty($yachtData["main_image"])) {
-    foreach($galleryMedia as $item) {
-        if($item['url'] == $yachtData["main_image"]) {
-            $mainImageAdded = true;
-            break;
+    if (empty($items)) {
+        foreach ($defaultImages as $img) {
+            $items[] = array('url' => $img, 'type' => 'image');
         }
     }
-    
-    if(!$mainImageAdded) {
-        array_unshift($galleryMedia, array(
-            'url' => $yachtData["main_image"],
-            'type' => 'image'
-        ));
-    }
+
+    return $items;
 }
 
-// If no media found, add some default images
-if(empty($galleryMedia)) {
-    foreach($default_yacht_images as $img) {
-        $galleryMedia[] = array(
-            'url' => $img,
-            'type' => 'image'
-        );
-    }
-}
+$galleryMedia = fetchGalleryMedia($VT, $yacht_id, $yachtData['main_image'], $default_yacht_images);
 
 // Add CSS for this page
 echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
+echo '<link rel="stylesheet" href="'.SITE.'assets/css/modern-gallery.css">';
 ?>
 
 <!-- Yacht Detail Hero Section -->
@@ -228,7 +169,7 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                     <div class="yacht-spec-value"><?php echo $yachtData["length"]; ?></div>
                         <div class="yacht-spec-label">LENGTH</div>
                 </div>
-                
+
                 <div class="yacht-spec">
                     <div class="yacht-spec-icon">
                         <i class="fas fa-users"></i>
@@ -236,7 +177,7 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                     <div class="yacht-spec-value"><?php echo $yachtData["guests"]; ?></div>
                         <div class="yacht-spec-label">GUESTS</div>
                 </div>
-                
+
                 <div class="yacht-spec">
                     <div class="yacht-spec-icon">
                         <i class="fas fa-bed"></i>
@@ -244,7 +185,7 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                     <div class="yacht-spec-value"><?php echo $yachtData["cabins"]; ?></div>
                         <div class="yacht-spec-label">CABINS</div>
                 </div>
-                
+
                 <div class="yacht-spec">
                     <div class="yacht-spec-icon">
                         <i class="fas fa-user-tie"></i>
@@ -268,51 +209,36 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                         <?php echo $yachtData["description"]; ?>
                     </div>
                 </div>
-                
+
                 <!-- Yacht Gallery -->
                 <div class="yacht-gallery fade-in">
                     <h2 class="section-heading">Gallery</h2>
-                    <div class="gallery-grid">
-                        <?php
-                        // Display gallery images and videos
-                        foreach($galleryMedia as $index => $media) {
-                            $featuredClass = ($index === 0) ? 'featured' : '';
-                            $mediaType = $media['type'];
-                            $mediaUrl = $media['url'];
-                            
-                            if($mediaType == 'video') {
-                                // Display video thumbnail with play button
-                                ?>
-                            <div class="gallery-item <?php echo $featuredClass; ?> video-item">
-                                <div class="video-thumbnail" data-video="<?php echo $mediaUrl; ?>">
-                                    <!-- Video thumbnail background with play button overlay -->
-                                    <div class="video-poster" style="background-color: #0a1a2a;">
-                                        <i class="fas fa-video"
-                                            style="position: absolute; font-size: 32px; color: #444; top: 50%; left: 50%; transform: translate(-50%, -80%);"></i>
+                    <div class="modern-gallery">
+                        <?php foreach($galleryMedia as $index => $media): ?>
+                            <div class="modern-gallery-item" onclick="openGallery(<?php echo $index; ?>)">
+                                <?php if($media['type'] === 'video'): ?>
+                                    <div class="modern-video-thumb">
+                                        <span class="modern-play">&#9658;</span>
                                     </div>
-                                    <div class="play-button">
-                                        <i class="fas fa-play"></i>
-                                    </div>
-                                </div>
+                                <?php else: ?>
+                                    <img src="<?php echo $media['url']; ?>" alt="Gallery Image <?php echo $index+1; ?>" loading="lazy">
+                                <?php endif; ?>
                             </div>
-                            <?php
-                            } else {
-                                // Display image
-                            ?>
-                            <div class="gallery-item <?php echo $featuredClass; ?>">
-                                <img src="<?php echo $mediaUrl; ?>"
-                                    alt="<?php echo $yachtData["name"]; ?> - Image <?php echo $index+1; ?>">
-                                <div class="zoom-icon">
-                                    <i class="fas fa-search-plus"></i>
-                                </div>
-                            </div>
-                            <?php
-                            }
-                        }
-                        ?>
+                        <?php endforeach; ?>
                     </div>
                 </div>
-                
+
+                <div id="modernGalleryModal" class="modern-gallery-modal" onclick="closeGallery()">
+                    <span class="modern-close">&times;</span>
+                    <img id="modernModalImg" src="" alt="">
+                    <video id="modernModalVideo" controls style="display:none;">
+                        <source src="" type="video/mp4">
+                    </video>
+                    <div class="modern-counter"></div>
+                    <button class="modern-prev" onclick="changeGallery(-1)">&#10094;</button>
+                    <button class="modern-next" onclick="changeGallery(1)">&#10095;</button>
+                </div>
+
                 <!-- Yacht Specifications -->
                 <div class="fade-in">
                     <h2 class="section-heading">Specifications</h2>
@@ -358,7 +284,7 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                             <?php endif; ?>
                     </table>
                 </div>
-                
+
                 <!-- Yacht Amenities -->
                 <div class="fade-in">
                     <h2 class="section-heading">Amenities & Toys</h2>
@@ -376,21 +302,21 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                             array("icon" => "fas fa-utensils", "text" => "Gourmet chef"),
                             array("icon" => "fas fa-ship", "text" => "Tender boat")
                         );
-                        
+
                         // Try to get yacht features/amenities from the database
                         $features = array();
-                        
+
                         // Check if a features table exists and the yacht has features
                         if(isset($yacht_id) && $yacht_id > 0) {
                             // Directly query the yacht_features_pivot table joining with yacht_features
                             $yacht_features = $VT->VeriGetir(
-                                "yacht_features_pivot 
-                                 INNER JOIN yacht_features ON yacht_features_pivot.feature_id = yacht_features.ID", 
-                                "WHERE yacht_features_pivot.yacht_id=? AND yacht_features.durum=?", 
-                                array($yacht_id, 1), 
+                                "yacht_features_pivot
+                                 INNER JOIN yacht_features ON yacht_features_pivot.feature_id = yacht_features.ID",
+                                "WHERE yacht_features_pivot.yacht_id=? AND yacht_features.durum=?",
+                                array($yacht_id, 1),
                                 "ORDER BY yacht_features.baslik ASC"
                             );
-                            
+
                             // Map feature icons based on common names
                             $featureIcons = array(
                                 'wifi' => 'fas fa-wifi',
@@ -408,11 +334,11 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                                 'tv' => 'fas fa-tv',
                                 'satellite' => 'fas fa-satellite-dish'
                             );
-                            
+
                             if($yacht_features) {
                                 foreach($yacht_features as $feature) {
                                     $featureName = stripslashes($feature["baslik"]);
-                                    
+
                                     // Determine icon based on feature name
                                     $icon = "fas fa-check";
                                     foreach($featureIcons as $keyword => $iconClass) {
@@ -421,7 +347,7 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                                             break;
                                         }
                                     }
-                                    
+
                                     $features[] = array(
                                         "icon" => $icon,
                                         "text" => $featureName
@@ -429,12 +355,12 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                                 }
                             }
                         }
-                        
+
                         // If no features found, use default amenities
                         if(empty($features)) {
                             $features = $defaultAmenities;
                         }
-                        
+
                         // Display amenities
                         foreach($features as $feature) {
                             ?>
@@ -469,52 +395,52 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
             // Get similar yachts based on criteria
             $currentYachtId = $yacht_id ?? 0;
             $similarYachts = array();
-            
+
             // First try to get yachts with similar characteristics (type, location, capacity)
             if(isset($yacht["type_id"]) && !empty($yacht["type_id"])) {
                 // Try to find yachts with the same type
-                $similarByType = $VT->VeriGetir("yachts", 
-                    "WHERE durum=? AND type_id=? AND ID!=?", 
+                $similarByType = $VT->VeriGetir("yachts",
+                    "WHERE durum=? AND type_id=? AND ID!=?",
                     array(1, $yacht["type_id"], $currentYachtId),
                     "ORDER BY RAND() LIMIT 3"
                 );
-                
+
                 if($similarByType) {
                     $similarYachts = array_merge($similarYachts, $similarByType);
                 }
             }
-            
+
             // If we don't have enough similar yachts by type, try location
             if(count($similarYachts) < 3 && isset($yacht["location_id"]) && !empty($yacht["location_id"])) {
-                $similarByLocation = $VT->VeriGetir("yachts", 
-                    "WHERE durum=? AND location_id=? AND ID!=? AND ID NOT IN (" . implode(',', array_map(function($y) { return $y['ID']; }, $similarYachts)) . ")", 
+                $similarByLocation = $VT->VeriGetir("yachts",
+                    "WHERE durum=? AND location_id=? AND ID!=? AND ID NOT IN (" . implode(',', array_map(function($y) { return $y['ID']; }, $similarYachts)) . ")",
                     array(1, $yacht["location_id"], $currentYachtId),
                     "ORDER BY RAND() LIMIT " . (3 - count($similarYachts))
                 );
-                
+
                 if($similarByLocation) {
                     $similarYachts = array_merge($similarYachts, $similarByLocation);
                 }
             }
-            
+
             // If we still don't have enough yachts, get random ones
             if(count($similarYachts) < 3) {
                 $excludeIds = array($currentYachtId);
                 foreach($similarYachts as $sy) {
                     $excludeIds[] = $sy['ID'];
                 }
-                
-                $randomYachts = $VT->VeriGetir("yachts", 
-                    "WHERE durum=? AND ID NOT IN (" . implode(',', $excludeIds) . ")", 
+
+                $randomYachts = $VT->VeriGetir("yachts",
+                    "WHERE durum=? AND ID NOT IN (" . implode(',', $excludeIds) . ")",
                     array(1),
                     "ORDER BY RAND() LIMIT " . (3 - count($similarYachts))
                 );
-                
+
                 if($randomYachts) {
                     $similarYachts = array_merge($similarYachts, $randomYachts);
                 }
             }
-            
+
             // Display similar yachts
             if(!empty($similarYachts)) {
                 foreach($similarYachts as $similarYacht) {
@@ -523,7 +449,7 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                     if(!empty($similarYacht["resim"])) {
                         $yachtImage = SITE . "images/yachts/" . $similarYacht["resim"];
                     }
-                    
+
                     // Format price
                     $price = "";
                     $pricePeriod = "";
@@ -534,7 +460,7 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
                         $price = "€" . number_format($similarYacht["price_per_day"]);
                         $pricePeriod = "per day";
                     }
-                    
+
                     // Get yacht specs
                     $length = isset($similarYacht["length_m"]) ? $similarYacht["length_m"] . "m" : "";
                     $guests = $similarYacht["capacity"] ?? $similarYacht["guest_capacity"] ?? "";
@@ -593,7 +519,10 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
 
 <!-- Required JavaScript files -->
 <script src="<?php echo SITE; ?>assets/js/yacht-detail.js"></script>
-<script src="<?php echo SITE; ?>assets/js/gallery-functions.js"></script>
+<script>
+window.galleryMedia = <?php echo json_encode($galleryMedia); ?>;
+</script>
+<script src="<?php echo SITE; ?>assets/js/modern-gallery.js"></script>
 
 <!-- Structured Data for SEO -->
 <script type="application/ld+json">
@@ -614,4 +543,5 @@ echo '<link rel="stylesheet" href="'.SITE.'css/yacht-detail.css">';
         "name": "<?php echo $yacht_type; ?>"
     }
 }
-</script> 
+</script>
+
